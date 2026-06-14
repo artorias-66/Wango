@@ -199,13 +199,7 @@ export function MapView({
       {hangouts.map((h) => (
         <Marker
           key={h.id}
-          position={[
-            // Since we don't get lat/lng back from the API directly,
-            // we compute a slight offset from user pos for demo purposes.
-            // In production, include lat/lng in the API response.
-            position ? position.lat + (Math.random() - 0.5) * 0.05 : 20.5937,
-            position ? position.lng + (Math.random() - 0.5) * 0.05 : 78.9629,
-          ]}
+          position={[h.lat, h.lng]}
           icon={createHangoutIcon(h.category, selectedId === h.id)}
           eventHandlers={{ click: () => onSelectHangout(h) }}
         >

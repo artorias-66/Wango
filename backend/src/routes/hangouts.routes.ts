@@ -9,6 +9,7 @@ import {
   getHangout,
   joinHangout,
   respondJoin,
+  getHosted,
 } from '../controllers/hangouts.controller';
 
 const router = Router();
@@ -53,6 +54,9 @@ router.post('/', requireAuth, validate(CreateHangoutSchema, 'body'), postHangout
 
 // GET /api/hangouts/discover — spatial discovery (public)
 router.get('/discover', validate(DiscoverQuerySchema, 'query'), discover);
+
+// GET /api/hangouts/hosted — get hangouts created by user
+router.get('/hosted', requireAuth, getHosted);
 
 // GET /api/hangouts/:id — get hangout detail + join requests
 router.get('/:id', getHangout);

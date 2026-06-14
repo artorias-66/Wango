@@ -4,6 +4,7 @@ import { useUser } from '@clerk/clerk-react';
 import { Header } from './components/Header';
 import { Discover } from './pages/Discover';
 import { PostHangout } from './pages/PostHangout';
+import { HostDashboard } from './pages/HostDashboard';
 import { Onboarding } from './pages/Onboarding';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -31,6 +32,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <PostHangout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <HostDashboard />
             </ProtectedRoute>
           }
         />

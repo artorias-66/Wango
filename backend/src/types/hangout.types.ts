@@ -67,6 +67,8 @@ export interface HangoutRecord {
   status: string;
   maxParticipants: number;
   createdAt: Date;
+  lat: number;
+  lng: number;
   user: {
     id: number;
     name: string;

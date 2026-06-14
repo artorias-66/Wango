@@ -52,6 +52,7 @@ export function Header() {
         {[
           { label: 'Discover', path: '/' },
           { label: 'Post Hangout', path: '/post' },
+          { label: 'Dashboard', path: '/dashboard' },
         ].map(({ label, path }) => (
           <Link
             key={path}

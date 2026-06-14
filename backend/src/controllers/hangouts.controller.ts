@@ -8,6 +8,7 @@ import {
   getHangoutById,
   requestToJoin,
   respondToJoin,
+  getHostedHangouts,
 } from '../services/hangouts.service';
 
 /**
@@ -135,6 +136,27 @@ export async function respondJoin(req: Request, res: Response, next: NextFunctio
     }
 
     res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/hangouts/hosted
+ * Get all hangouts created by the current user. Requires auth.
+ */
+export async function getHosted(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const auth = getAuth(req);
+    const dbUser = await getUserByClerkId(auth.userId!);
+
+    if (!dbUser) {
+      res.status(404).json({ success: false, message: 'User not found.' });
+      return;
+    }
+
+    const hangouts = await getHostedHangouts(dbUser.id);
+    res.status(200).json({ success: true, count: hangouts.length, data: hangouts });
   } catch (err) {
     next(err);
   }

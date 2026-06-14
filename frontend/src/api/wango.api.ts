@@ -45,6 +45,8 @@ export interface HangoutRecord {
   status: string;
   maxParticipants: number;
   createdAt: string;
+  lat: number;
+  lng: number;
   joinCount: number;
   user: { id: number; name: string; avatarColor: string };
 }
@@ -141,4 +143,8 @@ export async function respondToJoin(
     method: 'PATCH',
     body: JSON.stringify({ status }),
   }, token);
+}
+
+export async function getHostedHangouts(token: string): Promise<{ success: boolean; count: number; data: HangoutDetail[] }> {
+  return apiFetch('/api/hangouts/hosted', {}, token);
 }

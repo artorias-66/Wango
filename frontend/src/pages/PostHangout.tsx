@@ -1,7 +1,7 @@
 // frontend/src/pages/PostHangout.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSyncUser } from '../hooks/useSyncUser';
 import { createHangout } from '../api/wango.api';
@@ -23,7 +23,7 @@ const CATEGORIES = [
 export function PostHangout() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const { user } = useUser();
+
   const { position, loading: geoLoading, refresh } = useGeolocation();
 
   // Auto-sync Clerk user into DB if not already synced

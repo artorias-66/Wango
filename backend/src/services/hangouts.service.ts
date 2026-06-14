@@ -51,6 +51,8 @@ export async function createHangout(
     ...raw,
     user: user[0],
     joinCount: 0,
+    lat,
+    lng,
   };
 }
 
@@ -73,6 +75,7 @@ export async function discoverHangouts(
       SELECT
         h."id", h."title", h."description", h."category", h."scheduledAt",
         h."radiusKm", h."status", h."maxParticipants", h."createdAt", h."userId",
+        ST_Y(h."location"::geometry) AS "lat", ST_X(h."location"::geometry) AS "lng",
         u."name" as "userName", u."avatarColor",
         COUNT(j."id")::int AS "joinCount",
         ST_Distance(
@@ -100,6 +103,7 @@ export async function discoverHangouts(
       SELECT
         h."id", h."title", h."description", h."category", h."scheduledAt",
         h."radiusKm", h."status", h."maxParticipants", h."createdAt", h."userId",
+        ST_Y(h."location"::geometry) AS "lat", ST_X(h."location"::geometry) AS "lng",
         u."name" as "userName", u."avatarColor",
         COUNT(j."id")::int AS "joinCount",
         ST_Distance(
@@ -133,6 +137,8 @@ export async function discoverHangouts(
     status: r.status,
     maxParticipants: r.maxParticipants,
     createdAt: r.createdAt,
+    lat: r.lat,
+    lng: r.lng,
     distanceMeters: Number(r.distanceMeters),
     joinCount: r.joinCount ?? 0,
     user: { id: r.userId, name: r.userName, avatarColor: r.avatarColor },
@@ -147,6 +153,7 @@ export async function getHangoutById(id: number): Promise<(HangoutRecord & { joi
     SELECT
       h."id", h."title", h."description", h."category", h."scheduledAt",
       h."radiusKm", h."status", h."maxParticipants", h."createdAt", h."userId",
+      ST_Y(h."location"::geometry) AS "lat", ST_X(h."location"::geometry) AS "lng",
       u."name" as "userName", u."avatarColor",
       COUNT(j2."id") FILTER (WHERE j2."status" = 'ACCEPTED')::int AS "joinCount"
     FROM "HangoutPost" h
@@ -180,6 +187,8 @@ export async function getHangoutById(id: number): Promise<(HangoutRecord & { joi
     status: r.status,
     maxParticipants: r.maxParticipants,
     createdAt: r.createdAt,
+    lat: r.lat,
+    lng: r.lng,
     joinCount: r.joinCount ?? 0,
     user: { id: r.userId, name: r.userName, avatarColor: r.avatarColor },
     joins: (joins as any[]).map((j) => ({
@@ -228,4 +237,65 @@ export async function respondToJoin(
     RETURNING j."id", j."status"
   `;
   return result[0] ?? null;
+}
+
+/**
+ * Get all hangouts created by the user, including all join requests.
+ */
+export async function getHostedHangouts(userId: number): Promise<(HangoutRecord & { joins: JoinRecord[] })[]> {
+  const hangouts = await prisma.$queryRaw<any[]>`
+    SELECT
+      h."id", h."title", h."description", h."category", h."scheduledAt",
+      h."radiusKm", h."status", h."maxParticipants", h."createdAt", h."userId",
+      ST_Y(h."location"::geometry) AS "lat", ST_X(h."location"::geometry) AS "lng",
+      u."name" as "userName", u."avatarColor",
+      COUNT(j2."id") FILTER (WHERE j2."status" = 'ACCEPTED')::int AS "joinCount"
+    FROM "HangoutPost" h
+    JOIN "User" u ON u."id" = h."userId"
+    LEFT JOIN "HangoutJoin" j2 ON j2."hangoutPostId" = h."id"
+    WHERE h."userId" = ${userId}
+    GROUP BY h."id", u."name", u."avatarColor"
+    ORDER BY h."createdAt" DESC
+  `;
+
+  if (!hangouts.length) return [];
+
+  const hangoutIds = hangouts.map((h) => h.id);
+
+  const joins = await prisma.$queryRaw<JoinRecord[]>`
+    SELECT
+      j."id", j."status", j."message", j."createdAt", j."hangoutPostId",
+      u."id" as "userId", u."name", u."avatarColor"
+    FROM "HangoutJoin" j
+    JOIN "User" u ON u."id" = j."userId"
+    WHERE j."hangoutPostId" = ANY(${hangoutIds}::int[])
+    ORDER BY j."createdAt" ASC
+  `;
+
+  return hangouts.map((h) => {
+    const hangoutJoins = (joins as any[]).filter(j => j.hangoutPostId === h.id).map(j => ({
+      id: j.id,
+      status: j.status,
+      message: j.message,
+      createdAt: j.createdAt,
+      user: { id: j.userId, name: j.name, avatarColor: j.avatarColor },
+    }));
+
+    return {
+      id: h.id,
+      title: h.title,
+      description: h.description,
+      category: h.category,
+      scheduledAt: h.scheduledAt,
+      radiusKm: h.radiusKm,
+      status: h.status,
+      maxParticipants: h.maxParticipants,
+      createdAt: h.createdAt,
+      lat: h.lat,
+      lng: h.lng,
+      joinCount: h.joinCount ?? 0,
+      user: { id: h.userId, name: h.userName, avatarColor: h.avatarColor },
+      joins: hangoutJoins,
+    };
+  });
 }
