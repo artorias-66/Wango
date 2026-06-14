@@ -1,0 +1,103 @@
+# ═══════════════════════════════════════════════════════════════
+#  Wango — Production Docker Compose
+#
+#  Usage:
+#    docker compose -f docker-compose.prod.yml up -d
+#
+#  Required environment variables (set in .env on the server):
+#    POSTGRES_PASSWORD
+#    DATABASE_URL
+#    CLERK_PUBLISHABLE_KEY
+#    CLERK_SECRET_KEY
+#    VITE_CLERK_PUBLISHABLE_KEY (build-time, passed as build-arg)
+# ═══════════════════════════════════════════════════════════════
+
+services:
+
+  # ─── PostGIS Database ─────────────────────────────────────────
+  db:
+    image: postgis/postgis:13-3.4
+    container_name: wango_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: wango_db
+    volumes:
+      - wango_pgdata:/var/lib/postgresql/data
+    networks:
+      - wango_internal
+    # DB is NOT exposed to host in production — only accessible within wango_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wango_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ─── Backend API ──────────────────────────────────────────────
+  backend:
+    image: ghcr.io/artorias-66/wango-backend:${IMAGE_TAG:-latest}
+    # To build locally instead: uncomment below and comment out image:
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    container_name: wango_backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL}
+      CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      # CORS not needed — Nginx proxies API calls, same origin
+      CORS_ORIGIN: ${FRONTEND_URL:-http://localhost}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - wango_internal
+    # Backend NOT exposed to host — Nginx proxies /api/* internally
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ─── Frontend (Nginx) ─────────────────────────────────────────
+  frontend:
+    image: ghcr.io/artorias-66/wango-frontend:${IMAGE_TAG:-latest}
+    # To build locally instead: uncomment below and comment out image:
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
+    #   args:
+    #     VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY}
+    container_name: wango_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - wango_internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/index.html || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# ─── Networks ─────────────────────────────────────────────────
+networks:
+  wango_internal:
+    driver: bridge
+
+# ─── Volumes ──────────────────────────────────────────────────
+volumes:
+  wango_pgdata:
+    labels:
+      com.wango.description: "PostGIS persistent data volume"
+      com.wango.backup: "true"

@@ -1,0 +1,22 @@
+# ─── Build artifacts
+node_modules/
+dist/
+
+# ─── Environment secrets (never in images)
+.env
+.env.*
+
+# ─── Prisma generated client (regenerated in builder stage)
+prisma/generated/
+
+# ─── Dev tooling
+*.log
+npm-debug.log*
+
+# ─── OS artifacts
+.DS_Store
+Thumbs.db
+
+# ─── IDE
+.vscode/
+.idea/

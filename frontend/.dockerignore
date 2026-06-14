@@ -1,0 +1,18 @@
+# ─── Build artifacts
+node_modules/
+dist/
+
+# ─── Environment secrets
+.env
+.env.*
+
+# ─── Dev artifacts
+*.log
+
+# ─── OS
+.DS_Store
+Thumbs.db
+
+# ─── IDE
+.vscode/
+.idea/
