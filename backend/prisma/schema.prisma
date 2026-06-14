@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Category {
+  SPORTS
+  GO_KARTING
+  CRICKET
+  FOOTBALL
+  GAMING
+  FOOD
+  OUTDOOR
+  MUSIC
+  SOCIAL
+  FITNESS
+  TRAVEL
+}
+
+enum HangoutStatus {
+  OPEN
+  FULL
+  CANCELLED
+  COMPLETED
+}
+
+enum JoinStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id             Int                                    @id @default(autoincrement())
+  clerkId        String                                 @unique
+  name           String
+  email          String                                 @unique
+  bio            String?
+  avatarColor    String                                 @default("#00d4ff")
+  location       Unsupported("geography(Point, 4326)")?
+  createdAt      DateTime                               @default(now())
+  updatedAt      DateTime                               @updatedAt
+
+  hangouts       HangoutPost[]
+  joins          HangoutJoin[]
+
+  @@index([location], name: "user_location_idx", type: Gist)
+}
+
+model HangoutPost {
+  id              Int                                    @id @default(autoincrement())
+  title           String
+  description     String?
+  category        Category
+  scheduledAt     DateTime
+  radiusKm        Float                                  @default(10)
+  location        Unsupported("geography(Point, 4326)")?
+  status          HangoutStatus                          @default(OPEN)
+  maxParticipants Int                                    @default(8)
+  createdAt       DateTime                               @default(now())
+  updatedAt       DateTime                               @updatedAt
+
+  userId          Int
+  user            User                                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joins           HangoutJoin[]
+
+  @@index([location], name: "hangout_location_idx", type: Gist)
+  @@index([status])
+  @@index([category])
+}
+
+model HangoutJoin {
+  id            Int        @id @default(autoincrement())
+  status        JoinStatus @default(PENDING)
+  message       String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  hangoutPostId Int
+  hangoutPost   HangoutPost @relation(fields: [hangoutPostId], references: [id], onDelete: Cascade)
+
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([hangoutPostId, userId])
+}

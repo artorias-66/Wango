@@ -1,0 +1,144 @@
+// frontend/src/api/wango.api.ts
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+
+async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {},
+  token?: string
+): Promise<T> {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+    throw new Error(err.message ?? `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface UserRecord {
+  id: number;
+  clerkId: string;
+  name: string;
+  email: string;
+  bio: string | null;
+  avatarColor: string;
+  createdAt: string;
+}
+
+export interface HangoutRecord {
+  id: number;
+  title: string;
+  description: string | null;
+  category: string;
+  scheduledAt: string;
+  radiusKm: number;
+  status: string;
+  maxParticipants: number;
+  createdAt: string;
+  joinCount: number;
+  user: { id: number; name: string; avatarColor: string };
+}
+
+export interface NearbyHangout extends HangoutRecord {
+  distanceMeters: number;
+}
+
+export interface JoinRecord {
+  id: number;
+  status: string;
+  message: string | null;
+  createdAt: string;
+  user: { id: number; name: string; avatarColor: string };
+}
+
+export interface HangoutDetail extends HangoutRecord {
+  joins: JoinRecord[];
+}
+
+// ─── User Endpoints ───────────────────────────────────────────────────────────
+
+export async function syncUser(
+  payload: { name: string; email: string; bio?: string; lat: number; lng: number },
+  token: string
+): Promise<{ success: boolean; data: UserRecord }> {
+  return apiFetch('/api/users/sync', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }, token);
+}
+
+export async function getMe(token: string): Promise<{ success: boolean; data: UserRecord }> {
+  return apiFetch('/api/users/me', {}, token);
+}
+
+// ─── Hangout Endpoints ────────────────────────────────────────────────────────
+
+export async function discoverHangouts(params: {
+  lat: number;
+  lng: number;
+  radius?: number;
+  category?: string;
+}): Promise<{ success: boolean; count: number; data: NearbyHangout[] }> {
+  const q = new URLSearchParams({
+    lat: String(params.lat),
+    lng: String(params.lng),
+    ...(params.radius ? { radius: String(params.radius) } : {}),
+    ...(params.category ? { category: params.category } : {}),
+  });
+  return apiFetch(`/api/hangouts/discover?${q}`);
+}
+
+export async function getHangoutDetail(id: number): Promise<{ success: boolean; data: HangoutDetail }> {
+  return apiFetch(`/api/hangouts/${id}`);
+}
+
+export async function createHangout(
+  payload: {
+    title: string;
+    description?: string;
+    category: string;
+    scheduledAt: string;
+    radiusKm?: number;
+    maxParticipants?: number;
+    lat: number;
+    lng: number;
+  },
+  token: string
+): Promise<{ success: boolean; data: HangoutRecord }> {
+  return apiFetch('/api/hangouts', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }, token);
+}
+
+export async function requestToJoin(
+  hangoutId: number,
+  message: string | undefined,
+  token: string
+): Promise<{ success: boolean; data: { id: number; status: string } }> {
+  return apiFetch(`/api/hangouts/${hangoutId}/join`, {
+    method: 'POST',
+    body: JSON.stringify({ message }),
+  }, token);
+}
+
+export async function respondToJoin(
+  joinId: number,
+  status: 'ACCEPTED' | 'DECLINED',
+  token: string
+): Promise<{ success: boolean; data: { id: number; status: string } }> {
+  return apiFetch(`/api/hangouts/joins/${joinId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  }, token);
+}

@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # ─── PostGIS Database ──────────────────────────────────────────────────────
+  db:
+    image: postgis/postgis:13-3.4
+    container_name: wango_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: wango_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - wango_data:/var/lib/postgresql/data
+    networks:
+      - wango_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wango_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend API ───────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wango_backend
+    restart: unless-stopped
+    environment:
+      # Internal Docker DNS — backend talks to db container directly on 5432
+      DATABASE_URL: postgresql://postgres:your_password@db:5432/wango_db?schema=public
+      PORT: 3001
+      CORS_ORIGIN: http://localhost:5173
+      CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - wango_network
+    volumes:
+      # Mount source for hot-reload in dev
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+
+  # ─── Frontend ──────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: wango_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:3001
+      VITE_CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - wango_network
+    volumes:
+      - ./frontend/src:/app/src
+
+# ─── Shared Network ─────────────────────────────────────────────────────────
+networks:
+  wango_network:
+    driver: bridge
+
+# ─── Persistent Volumes ─────────────────────────────────────────────────────
+volumes:
+  wango_data:
