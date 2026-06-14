@@ -54,8 +54,8 @@ export function Discover() {
       await requestToJoin(joiningHangout.id, message || undefined, token!);
       showToast('Join request sent! The host will respond soon.', 'success');
       refetch();
-    } catch (err: any) {
-      showToast(err.message ?? 'Failed to send join request.', 'error');
+    } catch (err) {
+      showToast((err as Error).message ?? 'Failed to send join request.', 'error');
       throw err;
     }
   };

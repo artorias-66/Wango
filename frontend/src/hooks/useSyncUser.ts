@@ -34,13 +34,11 @@ export function useSyncUser(position: { lat: number; lng: number } | null) {
         );
         hasSynced.current = true;
         console.log('[Wango] User synced to DB ✓');
-      } catch (err: any) {
-        // 404 = not yet in DB (first time), sync will handle upsert
-        // Any other error: log but don't crash the app
-        console.warn('[Wango] Sync warning:', err.message);
+      } catch (err) {
+        console.error('Failed to sync user:', (err as Error).message);
       }
     };
 
     doSync();
-  }, [isLoaded, isSignedIn, user, position]);
+  }, [isLoaded, isSignedIn, user, position, getToken]);
 }

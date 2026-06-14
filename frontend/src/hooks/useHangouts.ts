@@ -40,14 +40,15 @@ export function useHangouts({
         category: category || undefined,
       });
       setHangouts(res.data);
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to load hangouts.');
+    } catch (err) {
+      setError((err as Error).message ?? 'Failed to load hangouts.');
     } finally {
       setLoading(false);
     }
   }, [position, radiusMeters, category]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchHangouts();
   }, [fetchHangouts]);
 

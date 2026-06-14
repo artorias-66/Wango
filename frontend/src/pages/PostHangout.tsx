@@ -40,7 +40,7 @@ export function PostHangout() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const set = (field: string, value: any) =>
+  const set = (field: string, value: string | number) =>
     setForm((f) => ({ ...f, [field]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,8 +64,8 @@ export function PostHangout() {
         lng: position.lng,
       }, token!);
       navigate('/');
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to create hangout. Please try again.');
+    } catch (err) {
+      setError((err as Error).message ?? 'Failed to create hangout. Please try again.');
     } finally {
       setLoading(false);
     }

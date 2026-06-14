@@ -31,8 +31,9 @@ export function Onboarding() {
         lng: position.lng,
       }, token!);
       navigate('/');
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong. Please try again.');
+    } catch (err) {
+      console.error(err);
+      setError((err as Error).message ?? 'Failed to sync location. Please try again.');
     } finally {
       setLoading(false);
     }

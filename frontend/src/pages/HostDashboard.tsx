@@ -17,25 +17,25 @@ export function HostDashboard() {
     }
   }, [isLoaded, isSignedIn, navigate]);
 
-  const fetchDashboard = async () => {
-    try {
-      setLoading(true);
-      const token = await getToken();
-      if (!token) return;
-      const res = await getHostedHangouts(token);
-      setHangouts(res.data);
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to load dashboard.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (isLoaded && isSignedIn) {
+      const fetchDashboard = async () => {
+        try {
+          setLoading(true);
+          const token = await getToken();
+          if (!token) return;
+          const res = await getHostedHangouts(token);
+          setHangouts(res.data);
+        } catch (err) {
+          setError((err as Error).message ?? 'Failed to load dashboard.');
+        } finally {
+          setLoading(false);
+        }
+      };
+
       fetchDashboard();
     }
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, getToken]);
 
   const handleRespond = async (joinId: number, status: 'ACCEPTED' | 'DECLINED') => {
     try {
@@ -49,8 +49,8 @@ export function HostDashboard() {
           joins: h.joins.map((j) => (j.id === joinId ? { ...j, status } : j)),
         }))
       );
-    } catch (err: any) {
-      alert(err.message ?? 'Failed to respond.');
+    } catch (err) {
+      alert((err as Error).message ?? 'Failed to respond.');
     }
   };
 
