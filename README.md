@@ -13,11 +13,12 @@ A real-time, location-based social discovery app that helps you find people near
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React 19, Vite, TypeScript, Leaflet (CartoDB Dark tiles) |
-| **Backend** | Node.js, Express 5, TypeScript, Zod |
+| **Frontend** | React 19, Vite, TypeScript, Leaflet, Socket.IO Client |
+| **Backend** | Node.js, Express 5, TypeScript, Socket.IO |
 | **Database** | PostgreSQL 13 + PostGIS 3.4 (spatial queries) |
+| **Cache/PubSub** | Redis 7 (Socket.IO Adapter for scaling) |
 | **ORM** | Prisma 7 (TypeScript-first) |
-| **Auth** | Clerk |
+| **Auth** | Clerk (JWT integrated with Sockets) |
 | **Container** | Docker + Nginx |
 | **CI/CD** | GitHub Actions → GHCR |
 
@@ -48,6 +49,14 @@ Wango/
 ├── Makefile                 # Convenience commands
 └── .github/workflows/       # CI + CD pipelines
 ```
+
+---
+
+## Key Architecture Highlights
+
+* **Real-time Chat with Horizontal Scaling**: Live chatrooms powered by Socket.IO. We use a Redis Pub/Sub adapter to ensure messages seamlessly broadcast across multiple backend instances if scaled out.
+* **Secure WebSockets**: Custom socket handshakes that cryptographically verify Clerk JWTs before allowing connections, ensuring private chats remain strictly private.
+* **Complex Spatial Queries**: The Discover map uses highly optimized PostGIS queries with raw SQL and `LEFT JOIN`s. Instead of cascading ORM queries, we fetch spatial locations, distance calculations, and real-time user join statuses (Unjoined, Pending, Accepted) in a single lightning-fast database round trip.
 
 ---
 
