@@ -34,14 +34,15 @@ Wango/
 │   │   ├── controllers/     # HTTP handlers
 │   │   ├── services/        # Business logic + PostGIS queries
 │   │   ├── routes/          # Endpoint definitions + Zod validation
-│   │   └── middleware/      # Auth (Clerk) + validation
+│   │   ├── middleware/      # Auth (Clerk) + validation
+│   │   └── socket/          # Socket.IO logic + Redis Pub/Sub adapter
 │   └── Dockerfile           # Multi-stage production build
 ├── frontend/                # Vite + React SPA
 │   ├── src/
 │   │   ├── api/             # Typed fetch client
-│   │   ├── components/      # UI components
-│   │   ├── hooks/           # useGeolocation, useHangouts, useSyncUser
-│   │   └── pages/           # Discover, PostHangout, Onboarding
+│   │   ├── components/      # UI components (MapView, HangoutCard)
+│   │   ├── hooks/           # useGeolocation, useChatSocket, useHangouts
+│   │   └── pages/           # Discover, ChatRoom, PostHangout
 │   ├── nginx.conf           # Production Nginx config
 │   └── Dockerfile           # Multi-stage build → Nginx
 ├── docker-compose.yml       # Development
