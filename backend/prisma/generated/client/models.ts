@@ -8,7 +8,10 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User.ts'
-export type * from './models/HangoutPost.ts'
-export type * from './models/HangoutJoin.ts'
-export type * from './commonInputTypes.ts'
+export type * from './models/User'
+export type * from './models/HangoutPost'
+export type * from './models/HangoutJoin'
+export type * from './models/ChatRoom'
+export type * from './models/ChatMember'
+export type * from './models/Message'
+export type * from './commonInputTypes'

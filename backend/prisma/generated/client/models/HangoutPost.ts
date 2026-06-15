@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model HangoutPost
@@ -278,6 +278,7 @@ export type HangoutPostWhereInput = {
   userId?: Prisma.IntFilter<"HangoutPost"> | number
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   joins?: Prisma.HangoutJoinListRelationFilter
+  chatRoom?: Prisma.XOR<Prisma.ChatRoomNullableScalarRelationFilter, Prisma.ChatRoomWhereInput> | null
 }
 
 export type HangoutPostOrderByWithRelationInput = {
@@ -294,6 +295,7 @@ export type HangoutPostOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   joins?: Prisma.HangoutJoinOrderByRelationAggregateInput
+  chatRoom?: Prisma.ChatRoomOrderByWithRelationInput
 }
 
 export type HangoutPostWhereUniqueInput = Prisma.AtLeast<{
@@ -313,6 +315,7 @@ export type HangoutPostWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.IntFilter<"HangoutPost"> | number
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   joins?: Prisma.HangoutJoinListRelationFilter
+  chatRoom?: Prisma.XOR<Prisma.ChatRoomNullableScalarRelationFilter, Prisma.ChatRoomWhereInput> | null
 }, "id">
 
 export type HangoutPostOrderByWithAggregationInput = {
@@ -363,6 +366,7 @@ export type HangoutPostCreateInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutHangoutsInput
   joins?: Prisma.HangoutJoinCreateNestedManyWithoutHangoutPostInput
+  chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutHangoutPostInput
 }
 
 export type HangoutPostUncheckedCreateInput = {
@@ -378,6 +382,7 @@ export type HangoutPostUncheckedCreateInput = {
   updatedAt?: Date | string
   userId: number
   joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutHangoutPostInput
+  chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutHangoutPostInput
 }
 
 export type HangoutPostUpdateInput = {
@@ -392,6 +397,7 @@ export type HangoutPostUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutHangoutsNestedInput
   joins?: Prisma.HangoutJoinUpdateManyWithoutHangoutPostNestedInput
+  chatRoom?: Prisma.ChatRoomUpdateOneWithoutHangoutPostNestedInput
 }
 
 export type HangoutPostUncheckedUpdateInput = {
@@ -407,6 +413,7 @@ export type HangoutPostUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutHangoutPostNestedInput
+  chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutHangoutPostNestedInput
 }
 
 export type HangoutPostCreateManyInput = {
@@ -592,6 +599,20 @@ export type HangoutPostUpdateOneRequiredWithoutJoinsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.HangoutPostUpdateToOneWithWhereWithoutJoinsInput, Prisma.HangoutPostUpdateWithoutJoinsInput>, Prisma.HangoutPostUncheckedUpdateWithoutJoinsInput>
 }
 
+export type HangoutPostCreateNestedOneWithoutChatRoomInput = {
+  create?: Prisma.XOR<Prisma.HangoutPostCreateWithoutChatRoomInput, Prisma.HangoutPostUncheckedCreateWithoutChatRoomInput>
+  connectOrCreate?: Prisma.HangoutPostCreateOrConnectWithoutChatRoomInput
+  connect?: Prisma.HangoutPostWhereUniqueInput
+}
+
+export type HangoutPostUpdateOneRequiredWithoutChatRoomNestedInput = {
+  create?: Prisma.XOR<Prisma.HangoutPostCreateWithoutChatRoomInput, Prisma.HangoutPostUncheckedCreateWithoutChatRoomInput>
+  connectOrCreate?: Prisma.HangoutPostCreateOrConnectWithoutChatRoomInput
+  upsert?: Prisma.HangoutPostUpsertWithoutChatRoomInput
+  connect?: Prisma.HangoutPostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.HangoutPostUpdateToOneWithWhereWithoutChatRoomInput, Prisma.HangoutPostUpdateWithoutChatRoomInput>, Prisma.HangoutPostUncheckedUpdateWithoutChatRoomInput>
+}
+
 export type HangoutPostCreateWithoutUserInput = {
   title: string
   description?: string | null
@@ -603,6 +624,7 @@ export type HangoutPostCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   joins?: Prisma.HangoutJoinCreateNestedManyWithoutHangoutPostInput
+  chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutHangoutPostInput
 }
 
 export type HangoutPostUncheckedCreateWithoutUserInput = {
@@ -617,6 +639,7 @@ export type HangoutPostUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutHangoutPostInput
+  chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutHangoutPostInput
 }
 
 export type HangoutPostCreateOrConnectWithoutUserInput = {
@@ -673,6 +696,7 @@ export type HangoutPostCreateWithoutJoinsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutHangoutsInput
+  chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutHangoutPostInput
 }
 
 export type HangoutPostUncheckedCreateWithoutJoinsInput = {
@@ -687,6 +711,7 @@ export type HangoutPostUncheckedCreateWithoutJoinsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: number
+  chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutHangoutPostInput
 }
 
 export type HangoutPostCreateOrConnectWithoutJoinsInput = {
@@ -716,6 +741,7 @@ export type HangoutPostUpdateWithoutJoinsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutHangoutsNestedInput
+  chatRoom?: Prisma.ChatRoomUpdateOneWithoutHangoutPostNestedInput
 }
 
 export type HangoutPostUncheckedUpdateWithoutJoinsInput = {
@@ -730,6 +756,81 @@ export type HangoutPostUncheckedUpdateWithoutJoinsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutHangoutPostNestedInput
+}
+
+export type HangoutPostCreateWithoutChatRoomInput = {
+  title: string
+  description?: string | null
+  category: $Enums.Category
+  scheduledAt: Date | string
+  radiusKm?: number
+  status?: $Enums.HangoutStatus
+  maxParticipants?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutHangoutsInput
+  joins?: Prisma.HangoutJoinCreateNestedManyWithoutHangoutPostInput
+}
+
+export type HangoutPostUncheckedCreateWithoutChatRoomInput = {
+  id?: number
+  title: string
+  description?: string | null
+  category: $Enums.Category
+  scheduledAt: Date | string
+  radiusKm?: number
+  status?: $Enums.HangoutStatus
+  maxParticipants?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userId: number
+  joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutHangoutPostInput
+}
+
+export type HangoutPostCreateOrConnectWithoutChatRoomInput = {
+  where: Prisma.HangoutPostWhereUniqueInput
+  create: Prisma.XOR<Prisma.HangoutPostCreateWithoutChatRoomInput, Prisma.HangoutPostUncheckedCreateWithoutChatRoomInput>
+}
+
+export type HangoutPostUpsertWithoutChatRoomInput = {
+  update: Prisma.XOR<Prisma.HangoutPostUpdateWithoutChatRoomInput, Prisma.HangoutPostUncheckedUpdateWithoutChatRoomInput>
+  create: Prisma.XOR<Prisma.HangoutPostCreateWithoutChatRoomInput, Prisma.HangoutPostUncheckedCreateWithoutChatRoomInput>
+  where?: Prisma.HangoutPostWhereInput
+}
+
+export type HangoutPostUpdateToOneWithWhereWithoutChatRoomInput = {
+  where?: Prisma.HangoutPostWhereInput
+  data: Prisma.XOR<Prisma.HangoutPostUpdateWithoutChatRoomInput, Prisma.HangoutPostUncheckedUpdateWithoutChatRoomInput>
+}
+
+export type HangoutPostUpdateWithoutChatRoomInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.EnumCategoryFieldUpdateOperationsInput | $Enums.Category
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  radiusKm?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHangoutStatusFieldUpdateOperationsInput | $Enums.HangoutStatus
+  maxParticipants?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutHangoutsNestedInput
+  joins?: Prisma.HangoutJoinUpdateManyWithoutHangoutPostNestedInput
+}
+
+export type HangoutPostUncheckedUpdateWithoutChatRoomInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.EnumCategoryFieldUpdateOperationsInput | $Enums.Category
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  radiusKm?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumHangoutStatusFieldUpdateOperationsInput | $Enums.HangoutStatus
+  maxParticipants?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutHangoutPostNestedInput
 }
 
 export type HangoutPostCreateManyUserInput = {
@@ -756,6 +857,7 @@ export type HangoutPostUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   joins?: Prisma.HangoutJoinUpdateManyWithoutHangoutPostNestedInput
+  chatRoom?: Prisma.ChatRoomUpdateOneWithoutHangoutPostNestedInput
 }
 
 export type HangoutPostUncheckedUpdateWithoutUserInput = {
@@ -770,6 +872,7 @@ export type HangoutPostUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutHangoutPostNestedInput
+  chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutHangoutPostNestedInput
 }
 
 export type HangoutPostUncheckedUpdateManyWithoutUserInput = {
@@ -830,6 +933,7 @@ export type HangoutPostSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   joins?: boolean | Prisma.HangoutPost$joinsArgs<ExtArgs>
+  chatRoom?: boolean | Prisma.HangoutPost$chatRoomArgs<ExtArgs>
   _count?: boolean | Prisma.HangoutPostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hangoutPost"]>
 
@@ -881,6 +985,7 @@ export type HangoutPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type HangoutPostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   joins?: boolean | Prisma.HangoutPost$joinsArgs<ExtArgs>
+  chatRoom?: boolean | Prisma.HangoutPost$chatRoomArgs<ExtArgs>
   _count?: boolean | Prisma.HangoutPostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type HangoutPostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -895,6 +1000,7 @@ export type $HangoutPostPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     joins: Prisma.$HangoutJoinPayload<ExtArgs>[]
+    chatRoom: Prisma.$ChatRoomPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1304,6 +1410,7 @@ export interface Prisma__HangoutPostClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   joins<T extends Prisma.HangoutPost$joinsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.HangoutPost$joinsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HangoutJoinPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chatRoom<T extends Prisma.HangoutPost$chatRoomArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.HangoutPost$chatRoomArgs<ExtArgs>>): Prisma.Prisma__ChatRoomClient<runtime.Types.Result.GetResult<Prisma.$ChatRoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1766,6 +1873,25 @@ export type HangoutPost$joinsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.HangoutJoinScalarFieldEnum | Prisma.HangoutJoinScalarFieldEnum[]
+}
+
+/**
+ * HangoutPost.chatRoom
+ */
+export type HangoutPost$chatRoomArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChatRoom
+   */
+  select?: Prisma.ChatRoomSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChatRoom
+   */
+  omit?: Prisma.ChatRoomOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChatRoomInclude<ExtArgs> | null
+  where?: Prisma.ChatRoomWhereInput
 }
 
 /**

@@ -138,7 +138,7 @@ export async function respondToJoin(
   joinId: number,
   status: 'ACCEPTED' | 'DECLINED',
   token: string
-): Promise<{ success: boolean; data: { id: number; status: string } }> {
+): Promise<{ success: boolean; data: { id: number; status: string; chatRoomId?: number } }> {
   return apiFetch(`/api/hangouts/joins/${joinId}`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
@@ -147,4 +147,38 @@ export async function respondToJoin(
 
 export async function getHostedHangouts(token: string): Promise<{ success: boolean; count: number; data: HangoutDetail[] }> {
   return apiFetch('/api/hangouts/hosted', {}, token);
+}
+
+// ─── Chat API ─────────────────────────────────────────────────────────────────
+
+export interface ChatRoomSummary {
+  id: number;
+  hangoutPostId: number;
+  hangoutTitle: string;
+  hangoutCategory: string;
+  scheduledAt: string;
+  expiresAt: string;
+  memberCount: number;
+  unreadCount: number;
+  lastMessage: { body: string; createdAt: string; senderName: string } | null;
+}
+
+export interface ChatMessage {
+  id: number;
+  body: string;
+  createdAt: string;
+  sender: { id: number; name: string; avatarColor: string };
+}
+
+export async function getChatRooms(token: string): Promise<{ success: boolean; data: ChatRoomSummary[] }> {
+  return apiFetch('/api/chat/my-rooms', {}, token);
+}
+
+export async function getChatMessages(
+  roomId: number,
+  token: string,
+  cursor?: number,
+): Promise<{ success: boolean; data: ChatMessage[] }> {
+  const params = cursor ? `?cursor=${cursor}` : '';
+  return apiFetch(`/api/chat/${roomId}/messages${params}`, {}, token);
 }

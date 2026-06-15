@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { getHostedHangouts, respondToJoin, type HangoutDetail, type JoinRecord } from '../api/wango.api';
+import { getHostedHangouts, respondToJoin, getChatRooms, type HangoutDetail, type JoinRecord, type ChatRoomSummary } from '../api/wango.api';
 import { useNavigate } from 'react-router-dom';
 
 export function HostDashboard() {
@@ -8,6 +8,7 @@ export function HostDashboard() {
   const navigate = useNavigate();
 
   const [hangouts, setHangouts] = useState<HangoutDetail[]>([]);
+  const [chatRooms, setChatRooms] = useState<Record<number, ChatRoomSummary>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +27,13 @@ export function HostDashboard() {
           if (!token) return;
           const res = await getHostedHangouts(token);
           setHangouts(res.data);
+          // Load chat rooms and index by hangoutPostId
+          const chatRes = await getChatRooms(token);
+          if (chatRes.success) {
+            const byHangout: Record<number, ChatRoomSummary> = {};
+            chatRes.data.forEach((r) => { byHangout[r.hangoutPostId] = r; });
+            setChatRooms(byHangout);
+          }
         } catch (err) {
           setError((err as Error).message ?? 'Failed to load dashboard.');
         } finally {
@@ -37,18 +45,26 @@ export function HostDashboard() {
     }
   }, [isLoaded, isSignedIn, getToken]);
 
-  const handleRespond = async (joinId: number, status: 'ACCEPTED' | 'DECLINED') => {
+  const handleRespond = async (joinId: number, status: 'ACCEPTED' | 'DECLINED', hangoutId: number) => {
     try {
       const token = await getToken();
       if (!token) return;
-      await respondToJoin(joinId, status, token);
-      // Optimistically update
+      const res = await respondToJoin(joinId, status, token);
+      // Optimistically update join status
       setHangouts((prev) =>
         prev.map((h) => ({
           ...h,
           joins: h.joins.map((j) => (j.id === joinId ? { ...j, status } : j)),
         }))
       );
+      // If accepted and a chat room was created, index it
+      if (status === 'ACCEPTED' && res.data.chatRoomId) {
+        const chatRoomId = res.data.chatRoomId;
+        setChatRooms((prev) => ({
+          ...prev,
+          [hangoutId]: { ...(prev[hangoutId] ?? {}), id: chatRoomId, hangoutPostId: hangoutId } as ChatRoomSummary,
+        }));
+      }
     } catch (err) {
       alert((err as Error).message ?? 'Failed to respond.');
     }
@@ -104,15 +120,26 @@ export function HostDashboard() {
                       {new Date(h.scheduledAt).toLocaleString()}
                     </p>
                   </div>
-                  <div style={{
-                    padding: '4px 10px',
-                    borderRadius: 100,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--glass-border)',
-                  }}>
-                    {h.status}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {chatRooms[h.id] && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ padding: '6px 14px', fontSize: 13 }}
+                        onClick={() => navigate(`/chat/${chatRooms[h.id].id}`)}
+                      >
+                        💬 Open Chat
+                      </button>
+                    )}
+                    <div style={{
+                      padding: '4px 10px',
+                      borderRadius: 100,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--glass-border)',
+                    }}>
+                      {h.status}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -153,14 +180,14 @@ export function HostDashboard() {
                             <button
                               className="btn"
                               style={{ padding: '6px 12px', fontSize: 12, background: 'rgba(239,68,68,0.1)', color: 'var(--color-danger)' }}
-                              onClick={() => handleRespond(j.id, 'DECLINED')}
+                            onClick={() => handleRespond(j.id, 'DECLINED', h.id)}
                             >
                               Decline
                             </button>
                             <button
                               className="btn btn-primary"
                               style={{ padding: '6px 12px', fontSize: 12 }}
-                              onClick={() => handleRespond(j.id, 'ACCEPTED')}
+                            onClick={() => handleRespond(j.id, 'ACCEPTED', h.id)}
                             >
                               Accept
                             </button>

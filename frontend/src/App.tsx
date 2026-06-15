@@ -6,6 +6,7 @@ import { Discover } from './pages/Discover';
 import { PostHangout } from './pages/PostHangout';
 import { HostDashboard } from './pages/HostDashboard';
 import { Onboarding } from './pages/Onboarding';
+import { ChatRoom } from './pages/ChatRoom';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useUser();
@@ -49,6 +50,14 @@ export default function App() {
             <OnboardingRoute>
               <Onboarding />
             </OnboardingRoute>
+          }
+        />
+        <Route
+          path="/chat/:roomId"
+          element={
+            <ProtectedRoute>
+              <ChatRoom />
+            </ProtectedRoute>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -24,11 +24,11 @@ services:
 
   # ─── Backend API ───────────────────────────────────────────────────────────
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: node:22-alpine
     container_name: wango_backend
     restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npx prisma generate && npm run dev"
     environment:
       # Internal Docker DNS — backend talks to db container directly on 5432
       DATABASE_URL: postgresql://postgres:your_password@db:5432/wango_db?schema=public
@@ -36,25 +36,28 @@ services:
       CORS_ORIGIN: http://localhost:5173
       CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
       CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      REDIS_URL: redis://redis:6379
     ports:
       - "3001:3001"
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - wango_network
     volumes:
       # Mount source for hot-reload in dev
-      - ./backend/src:/app/src
-      - ./backend/prisma:/app/prisma
+      - ./backend:/app
+      - /app/node_modules
 
   # ─── Frontend ──────────────────────────────────────────────────────────────
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: node:22-alpine
     container_name: wango_frontend
     restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
     environment:
       VITE_API_URL: http://localhost:3001
       VITE_CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
@@ -65,7 +68,18 @@ services:
     networks:
       - wango_network
     volumes:
-      - ./frontend/src:/app/src
+      - ./frontend:/app
+      - /app/node_modules
+
+# ─── Redis ─────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: wango_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - wango_network
 
 # ─── Shared Network ─────────────────────────────────────────────────────────
 networks:

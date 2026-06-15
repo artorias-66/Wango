@@ -1,13 +1,18 @@
 // backend/src/index.ts
 import 'dotenv/config';
+import http from 'http';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 
 import usersRouter from './routes/users.routes';
 import hangoutsRouter from './routes/hangouts.routes';
+import chatRouter from './routes/chat.routes';
+import { initSocketServer } from './socket';
+import { startChatCleanupJob } from './jobs/chat.cleanup';
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT ?? 3001;
 
 // ─── Global Middleware ────────────────────────────────────────────────────────
@@ -34,6 +39,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/users', usersRouter);
 app.use('/api/hangouts', hangoutsRouter);
+app.use('/api/chat', chatRouter);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 
@@ -54,6 +60,11 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 
-app.listen(PORT, () => {
+// Socket.IO is attached to the same HTTP server (same port)
+initSocketServer(server);
+startChatCleanupJob();
+
+server.listen(PORT, () => {
   console.log(`🚀 Wango API running on http://localhost:${PORT}`);
 });
+

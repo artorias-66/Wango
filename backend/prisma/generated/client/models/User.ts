@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model User
@@ -242,6 +242,8 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   hangouts?: Prisma.HangoutPostListRelationFilter
   joins?: Prisma.HangoutJoinListRelationFilter
+  chatMemberships?: Prisma.ChatMemberListRelationFilter
+  sentMessages?: Prisma.MessageListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -255,6 +257,8 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   hangouts?: Prisma.HangoutPostOrderByRelationAggregateInput
   joins?: Prisma.HangoutJoinOrderByRelationAggregateInput
+  chatMemberships?: Prisma.ChatMemberOrderByRelationAggregateInput
+  sentMessages?: Prisma.MessageOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -271,6 +275,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   hangouts?: Prisma.HangoutPostListRelationFilter
   joins?: Prisma.HangoutJoinListRelationFilter
+  chatMemberships?: Prisma.ChatMemberListRelationFilter
+  sentMessages?: Prisma.MessageListRelationFilter
 }, "id" | "clerkId" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -313,6 +319,8 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   hangouts?: Prisma.HangoutPostCreateNestedManyWithoutUserInput
   joins?: Prisma.HangoutJoinCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -326,6 +334,8 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   hangouts?: Prisma.HangoutPostUncheckedCreateNestedManyWithoutUserInput
   joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserUpdateInput = {
@@ -338,6 +348,8 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hangouts?: Prisma.HangoutPostUpdateManyWithoutUserNestedInput
   joins?: Prisma.HangoutJoinUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -351,6 +363,8 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hangouts?: Prisma.HangoutPostUncheckedUpdateManyWithoutUserNestedInput
   joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -479,6 +493,34 @@ export type UserUpdateOneRequiredWithoutJoinsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutJoinsInput, Prisma.UserUpdateWithoutJoinsInput>, Prisma.UserUncheckedUpdateWithoutJoinsInput>
 }
 
+export type UserCreateNestedOneWithoutChatMembershipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChatMembershipsInput, Prisma.UserUncheckedCreateWithoutChatMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutChatMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChatMembershipsInput, Prisma.UserUncheckedCreateWithoutChatMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatMembershipsInput
+  upsert?: Prisma.UserUpsertWithoutChatMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutChatMembershipsInput, Prisma.UserUpdateWithoutChatMembershipsInput>, Prisma.UserUncheckedUpdateWithoutChatMembershipsInput>
+}
+
+export type UserCreateNestedOneWithoutSentMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSentMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  upsert?: Prisma.UserUpsertWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentMessagesInput, Prisma.UserUpdateWithoutSentMessagesInput>, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
 export type UserCreateWithoutHangoutsInput = {
   clerkId: string
   name: string
@@ -488,6 +530,8 @@ export type UserCreateWithoutHangoutsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   joins?: Prisma.HangoutJoinCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutHangoutsInput = {
@@ -500,6 +544,8 @@ export type UserUncheckedCreateWithoutHangoutsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutHangoutsInput = {
@@ -527,6 +573,8 @@ export type UserUpdateWithoutHangoutsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   joins?: Prisma.HangoutJoinUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHangoutsInput = {
@@ -539,6 +587,8 @@ export type UserUncheckedUpdateWithoutHangoutsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutJoinsInput = {
@@ -550,6 +600,8 @@ export type UserCreateWithoutJoinsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   hangouts?: Prisma.HangoutPostCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
 }
 
 export type UserUncheckedCreateWithoutJoinsInput = {
@@ -562,6 +614,8 @@ export type UserUncheckedCreateWithoutJoinsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   hangouts?: Prisma.HangoutPostUncheckedCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
 }
 
 export type UserCreateOrConnectWithoutJoinsInput = {
@@ -589,6 +643,8 @@ export type UserUpdateWithoutJoinsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hangouts?: Prisma.HangoutPostUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutJoinsInput = {
@@ -601,6 +657,148 @@ export type UserUncheckedUpdateWithoutJoinsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hangouts?: Prisma.HangoutPostUncheckedUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutChatMembershipsInput = {
+  clerkId: string
+  name: string
+  email: string
+  bio?: string | null
+  avatarColor?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hangouts?: Prisma.HangoutPostCreateNestedManyWithoutUserInput
+  joins?: Prisma.HangoutJoinCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutChatMembershipsInput = {
+  id?: number
+  clerkId: string
+  name: string
+  email: string
+  bio?: string | null
+  avatarColor?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hangouts?: Prisma.HangoutPostUncheckedCreateNestedManyWithoutUserInput
+  joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutChatMembershipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutChatMembershipsInput, Prisma.UserUncheckedCreateWithoutChatMembershipsInput>
+}
+
+export type UserUpsertWithoutChatMembershipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutChatMembershipsInput, Prisma.UserUncheckedUpdateWithoutChatMembershipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutChatMembershipsInput, Prisma.UserUncheckedCreateWithoutChatMembershipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutChatMembershipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutChatMembershipsInput, Prisma.UserUncheckedUpdateWithoutChatMembershipsInput>
+}
+
+export type UserUpdateWithoutChatMembershipsInput = {
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hangouts?: Prisma.HangoutPostUpdateManyWithoutUserNestedInput
+  joins?: Prisma.HangoutJoinUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutChatMembershipsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hangouts?: Prisma.HangoutPostUncheckedUpdateManyWithoutUserNestedInput
+  joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserCreateWithoutSentMessagesInput = {
+  clerkId: string
+  name: string
+  email: string
+  bio?: string | null
+  avatarColor?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hangouts?: Prisma.HangoutPostCreateNestedManyWithoutUserInput
+  joins?: Prisma.HangoutJoinCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSentMessagesInput = {
+  id?: number
+  clerkId: string
+  name: string
+  email: string
+  bio?: string | null
+  avatarColor?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hangouts?: Prisma.HangoutPostUncheckedCreateNestedManyWithoutUserInput
+  joins?: Prisma.HangoutJoinUncheckedCreateNestedManyWithoutUserInput
+  chatMemberships?: Prisma.ChatMemberUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSentMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+}
+
+export type UserUpsertWithoutSentMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentMessagesInput, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentMessagesInput, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
+export type UserUpdateWithoutSentMessagesInput = {
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hangouts?: Prisma.HangoutPostUpdateManyWithoutUserNestedInput
+  joins?: Prisma.HangoutJoinUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentMessagesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hangouts?: Prisma.HangoutPostUncheckedUpdateManyWithoutUserNestedInput
+  joins?: Prisma.HangoutJoinUncheckedUpdateManyWithoutUserNestedInput
+  chatMemberships?: Prisma.ChatMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -611,11 +809,15 @@ export type UserUncheckedUpdateWithoutJoinsInput = {
 export type UserCountOutputType = {
   hangouts: number
   joins: number
+  chatMemberships: number
+  sentMessages: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hangouts?: boolean | UserCountOutputTypeCountHangoutsArgs
   joins?: boolean | UserCountOutputTypeCountJoinsArgs
+  chatMemberships?: boolean | UserCountOutputTypeCountChatMembershipsArgs
+  sentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
 }
 
 /**
@@ -642,6 +844,20 @@ export type UserCountOutputTypeCountJoinsArgs<ExtArgs extends runtime.Types.Exte
   where?: Prisma.HangoutJoinWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountChatMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChatMemberWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MessageWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -654,6 +870,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   hangouts?: boolean | Prisma.User$hangoutsArgs<ExtArgs>
   joins?: boolean | Prisma.User$joinsArgs<ExtArgs>
+  chatMemberships?: boolean | Prisma.User$chatMembershipsArgs<ExtArgs>
+  sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -694,6 +912,8 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hangouts?: boolean | Prisma.User$hangoutsArgs<ExtArgs>
   joins?: boolean | Prisma.User$joinsArgs<ExtArgs>
+  chatMemberships?: boolean | Prisma.User$chatMembershipsArgs<ExtArgs>
+  sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -704,6 +924,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     hangouts: Prisma.$HangoutPostPayload<ExtArgs>[]
     joins: Prisma.$HangoutJoinPayload<ExtArgs>[]
+    chatMemberships: Prisma.$ChatMemberPayload<ExtArgs>[]
+    sentMessages: Prisma.$MessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1110,6 +1332,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   hangouts<T extends Prisma.User$hangoutsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$hangoutsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HangoutPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   joins<T extends Prisma.User$joinsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$joinsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HangoutJoinPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chatMemberships<T extends Prisma.User$chatMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentMessages<T extends Prisma.User$sentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1585,6 +1809,54 @@ export type User$joinsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.HangoutJoinScalarFieldEnum | Prisma.HangoutJoinScalarFieldEnum[]
+}
+
+/**
+ * User.chatMemberships
+ */
+export type User$chatMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChatMember
+   */
+  select?: Prisma.ChatMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChatMember
+   */
+  omit?: Prisma.ChatMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChatMemberInclude<ExtArgs> | null
+  where?: Prisma.ChatMemberWhereInput
+  orderBy?: Prisma.ChatMemberOrderByWithRelationInput | Prisma.ChatMemberOrderByWithRelationInput[]
+  cursor?: Prisma.ChatMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChatMemberScalarFieldEnum | Prisma.ChatMemberScalarFieldEnum[]
+}
+
+/**
+ * User.sentMessages
+ */
+export type User$sentMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Message
+   */
+  select?: Prisma.MessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Message
+   */
+  omit?: Prisma.MessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MessageInclude<ExtArgs> | null
+  where?: Prisma.MessageWhereInput
+  orderBy?: Prisma.MessageOrderByWithRelationInput | Prisma.MessageOrderByWithRelationInput[]
+  cursor?: Prisma.MessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MessageScalarFieldEnum | Prisma.MessageScalarFieldEnum[]
 }
 
 /**

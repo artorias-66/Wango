@@ -51,6 +51,8 @@ model User {
 
   hangouts       HangoutPost[]
   joins          HangoutJoin[]
+  chatMemberships ChatMember[]
+  sentMessages   Message[]
 
   @@index([location], name: "user_location_idx", type: Gist)
 }
@@ -71,6 +73,7 @@ model HangoutPost {
   userId          Int
   user            User                                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   joins           HangoutJoin[]
+  chatRoom        ChatRoom?
 
   @@index([location], name: "hangout_location_idx", type: Gist)
   @@index([status])
@@ -91,4 +94,51 @@ model HangoutJoin {
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([hangoutPostId, userId])
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+model ChatRoom {
+  id            Int         @id @default(autoincrement())
+  // 1-to-1 with the hangout — room is created when first join is accepted
+  hangoutPostId Int         @unique
+  hangoutPost   HangoutPost @relation(fields: [hangoutPostId], references: [id], onDelete: Cascade)
+  // Mirrors hangout scheduledAt — used by cleanup cron to expire rooms at midnight on this day
+  expiresAt     DateTime
+  createdAt     DateTime    @default(now())
+
+  members       ChatMember[]
+  messages      Message[]
+
+  @@index([expiresAt])
+}
+
+model ChatMember {
+  id          Int      @id @default(autoincrement())
+  // Timestamp of when this user last opened the chat — used to compute unread badge
+  lastReadAt  DateTime @default(now())
+  joinedAt    DateTime @default(now())
+
+  chatRoomId  Int
+  chatRoom    ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatRoomId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  body       String
+  createdAt  DateTime @default(now())
+
+  chatRoomId Int
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+  senderId   Int
+  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([chatRoomId, createdAt])
 }

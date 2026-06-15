@@ -1,5 +1,6 @@
 // backend/src/services/hangouts.service.ts
 import { prisma } from '../db';
+import { upsertChatRoom } from './chat.service';
 import {
   CreateHangoutBody,
   HangoutRecord,
@@ -220,23 +221,49 @@ export async function requestToJoin(
 
 /**
  * Host responds to a join request (ACCEPTED or DECLINED).
+ * When ACCEPTED, a ChatRoom is automatically created for the hangout.
  */
 export async function respondToJoin(
   joinId: number,
   hostUserId: number,
   status: 'ACCEPTED' | 'DECLINED'
-): Promise<{ id: number; status: string } | null> {
-  // Verify requester is the host
-  const result = await prisma.$queryRaw<any[]>`
-    UPDATE "HangoutJoin" j
-    SET "status" = ${status}::"JoinStatus", "updatedAt" = NOW()
-    FROM "HangoutPost" h
+): Promise<{ id: number; status: string; chatRoomId?: number } | null> {
+  // Fetch full join + hangout context first
+  const join = await prisma.$queryRaw<any[]>`
+    SELECT
+      j."id", j."userId" as "joinUserId",
+      h."id" as "hangoutPostId", h."userId" as "hostUserId", h."scheduledAt"
+    FROM "HangoutJoin" j
+    JOIN "HangoutPost" h ON h."id" = j."hangoutPostId"
     WHERE j."id" = ${joinId}
-      AND j."hangoutPostId" = h."id"
       AND h."userId" = ${hostUserId}
-    RETURNING j."id", j."status"
   `;
-  return result[0] ?? null;
+
+  if (!join.length) return null;
+
+  const { joinUserId, hangoutPostId, scheduledAt } = join[0];
+
+  // Update join status
+  const result = await prisma.$queryRaw<any[]>`
+    UPDATE "HangoutJoin"
+    SET "status" = ${status}::"JoinStatus", "updatedAt" = NOW()
+    WHERE "id" = ${joinId}
+    RETURNING "id", "status"
+  `;
+
+  if (!result.length) return null;
+
+  // If accepted, auto-create the group chat room (idempotent)
+  let chatRoomId: number | undefined;
+  if (status === 'ACCEPTED') {
+    chatRoomId = await upsertChatRoom(
+      hangoutPostId,
+      [hostUserId, joinUserId],
+      new Date(scheduledAt),
+    );
+  }
+
+  return { ...result[0], chatRoomId };
 }
 
 /**
