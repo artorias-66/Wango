@@ -9,6 +9,7 @@
 #    DATABASE_URL
 #    CLERK_PUBLISHABLE_KEY
 #    CLERK_SECRET_KEY
+#    REDIS_URL (optional if you want to connect to external redis instead of the internal one)
 #    VITE_CLERK_PUBLISHABLE_KEY (build-time, passed as build-arg)
 # ═══════════════════════════════════════════════════════════════
 
@@ -35,6 +36,19 @@ services:
       retries: 5
       start_period: 20s
 
+  # ─── Redis (Socket.IO scaling) ────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: wango_redis
+    restart: always
+    networks:
+      - wango_internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ─── Backend API ──────────────────────────────────────────────
   backend:
     image: ghcr.io/artorias-66/wango-backend:${IMAGE_TAG:-latest}
@@ -50,10 +64,13 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
       CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       # CORS not needed — Nginx proxies API calls, same origin
       CORS_ORIGIN: ${FRONTEND_URL:-http://localhost}
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - wango_internal
