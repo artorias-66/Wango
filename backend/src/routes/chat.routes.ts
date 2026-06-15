@@ -1,6 +1,7 @@
 // backend/src/routes/chat.routes.ts
 import { Router } from 'express';
-import { requireAuth } from '@clerk/express';
+import { getAuth } from '@clerk/express';
+import { requireAuth } from '../middleware/requireAuth';
 import { prisma } from '../db';
 import { getMessages, getUserRooms, markRoomRead, isRoomMember } from '../services/chat.service';
 import type { Request, Response } from 'express';
@@ -15,9 +16,10 @@ async function getDbUser(clerkId: string) {
 
 // ─── GET /api/chat/my-rooms ───────────────────────────────────────────────────
 // List all chat rooms the current user is a member of (with unread counts)
-router.get('/my-rooms', requireAuth(), async (req: Request, res: Response) => {
-  const clerkId = (req as any).auth?.userId as string;
-  if (!clerkId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; };
+router.get('/my-rooms', requireAuth, async (req: Request, res: Response) => {
+  const auth = getAuth(req);
+  const clerkId = auth.userId;
+  if (!clerkId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
   const dbUser = await getDbUser(clerkId);
   if (!dbUser) {
     res.status(404).json({ success: false, message: 'User not found. Sync your profile first.' });
@@ -30,8 +32,8 @@ router.get('/my-rooms', requireAuth(), async (req: Request, res: Response) => {
 
 // ─── GET /api/chat/:roomId/messages ──────────────────────────────────────────
 // Paginated message history; marks the room as read
-router.get('/:roomId/messages', requireAuth(), async (req: Request, res: Response) => {
-  const clerkId = (req as any).auth?.userId as string;
+router.get('/:roomId/messages', requireAuth, async (req: Request, res: Response) => {
+  const clerkId = getAuth(req).userId;
   if (!clerkId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
   const roomId = parseInt(String(req.params['roomId'] ?? ''), 10);
   const cursorId = req.query.cursor ? parseInt(String(req.query.cursor), 10) : undefined;

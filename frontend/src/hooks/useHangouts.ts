@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { discoverHangouts } from '../api/wango.api';
 import type { NearbyHangout } from '../api/wango.api';
 import type { GeoPosition } from './useGeolocation';
+import { useAuth } from '@clerk/clerk-react';
 
 interface UseHangoutsOptions {
   position: GeoPosition | null;
@@ -26,6 +27,8 @@ export function useHangouts({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { getToken, isSignedIn } = useAuth();
+
   const fetchHangouts = useCallback(async () => {
     if (!position) return;
 
@@ -33,19 +36,25 @@ export function useHangouts({
     setError(null);
 
     try {
-      const res = await discoverHangouts({
-        lat: position.lat,
-        lng: position.lng,
-        radius: radiusMeters,
-        category: category || undefined,
-      });
+      let token: string | undefined;
+      if (isSignedIn) {
+        token = (await getToken()) ?? undefined;
+      }
+      
+      const res = await discoverHangouts(
+        position.lat,
+        position.lng,
+        radiusMeters,
+        category || undefined,
+        token
+      );
       setHangouts(res.data);
     } catch (err) {
       setError((err as Error).message ?? 'Failed to load hangouts.');
     } finally {
       setLoading(false);
     }
-  }, [position, radiusMeters, category]);
+  }, [position, radiusMeters, category, isSignedIn, getToken]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

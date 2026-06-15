@@ -135,6 +135,7 @@ interface MapViewProps {
   selectedId: number | null;
   onSelectHangout: (hangout: NearbyHangout) => void;
   onJoin: (hangout: NearbyHangout) => void;
+  onOpenChat?: (roomId: number) => void;
 }
 
 export function MapView({
@@ -144,6 +145,7 @@ export function MapView({
   selectedId,
   onSelectHangout,
   onJoin,
+  onOpenChat,
 }: MapViewProps) {
   const defaultCenter: [number, number] = position
     ? [position.lat, position.lng]
@@ -218,13 +220,37 @@ export function MapView({
               <p style={{ fontSize: 12, color: 'var(--color-success)', marginBottom: 10 }}>
                 {h.joinCount}/{h.maxParticipants} going
               </p>
-              <button
-                className="btn btn-primary btn-sm btn-full"
-                onClick={() => onJoin(h)}
-                style={{ fontSize: 12 }}
-              >
-                Request to Join
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {h.myJoinStatus === 'ACCEPTED' && h.chatRoomId && onOpenChat && (
+                  <button
+                    className="btn btn-primary btn-sm btn-full"
+                    onClick={() => onOpenChat(h.chatRoomId!)}
+                    style={{ fontSize: 12 }}
+                  >
+                    💬 Open Chat
+                  </button>
+                )}
+                {h.myJoinStatus === 'ACCEPTED' && (
+                  <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--color-success)', fontWeight: 600 }}>
+                    ✓ Joined
+                  </div>
+                )}
+                {h.myJoinStatus === 'PENDING' && (
+                  <div style={{ textAlign: 'center', fontSize: 12, color: '#f59e0b', fontWeight: 600 }}>
+                    ⏳ Request Pending
+                  </div>
+                )}
+                {!h.myJoinStatus && (
+                  <button
+                    className="btn btn-primary btn-sm btn-full"
+                    onClick={() => onJoin(h)}
+                    style={{ fontSize: 12 }}
+                    disabled={h.maxParticipants - h.joinCount <= 0}
+                  >
+                    {h.maxParticipants - h.joinCount <= 0 ? 'Full' : 'Request to Join'}
+                  </button>
+                )}
+              </div>
             </div>
           </Popup>
         </Marker>

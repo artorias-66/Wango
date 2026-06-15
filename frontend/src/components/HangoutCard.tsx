@@ -28,11 +28,12 @@ function formatDate(iso: string): string {
 interface HangoutCardProps {
   hangout: NearbyHangout;
   onJoin?: (hangout: NearbyHangout) => void;
+  onOpenChat?: (roomId: number) => void;
   onSelect?: (hangout: NearbyHangout) => void;
   isSelected?: boolean;
 }
 
-export function HangoutCard({ hangout, onJoin, onSelect, isSelected }: HangoutCardProps) {
+export function HangoutCard({ hangout, onJoin, onOpenChat, onSelect, isSelected }: HangoutCardProps) {
   const meta = CATEGORY_META[hangout.category] ?? { icon: '📍', color: '#00d4ff', label: hangout.category };
   const spotsLeft = hangout.maxParticipants - hangout.joinCount;
   const isFull = spotsLeft <= 0;
@@ -144,28 +145,73 @@ export function HangoutCard({ hangout, onJoin, onSelect, isSelected }: HangoutCa
           </span>
         </span>
 
-        {/* Join button */}
-        {onJoin && !isFull && (
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={(e) => { e.stopPropagation(); onJoin(hangout); }}
-            style={{ fontSize: 12, padding: '5px 12px' }}
-          >
-            Request to Join →
-          </button>
-        )}
-        {isFull && (
-          <span style={{
-            padding: '4px 10px',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(239,68,68,0.1)',
-            color: 'var(--color-danger)',
-            fontSize: 11,
-            fontWeight: 600,
-          }}>
-            Full
-          </span>
-        )}
+        {/* Join button / Status */}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {hangout.myJoinStatus === 'ACCEPTED' && hangout.chatRoomId && onOpenChat && (
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={(e) => { e.stopPropagation(); onOpenChat(hangout.chatRoomId!); }}
+              style={{ fontSize: 12, padding: '5px 12px' }}
+            >
+              💬 Open Chat
+            </button>
+          )}
+
+          {hangout.myJoinStatus === 'ACCEPTED' && (
+            <span style={{
+              padding: '4px 10px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(16,185,129,0.1)',
+              color: 'var(--color-success)',
+              fontSize: 11,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              Joined
+            </span>
+          )}
+
+          {hangout.myJoinStatus === 'PENDING' && (
+            <span style={{
+              padding: '4px 10px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(245,158,11,0.1)',
+              color: '#f59e0b',
+              fontSize: 11,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              Request Pending
+            </span>
+          )}
+
+          {!hangout.myJoinStatus && onJoin && !isFull && (
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={(e) => { e.stopPropagation(); onJoin(hangout); }}
+              style={{ fontSize: 12, padding: '5px 12px' }}
+            >
+              Request to Join →
+            </button>
+          )}
+
+          {!hangout.myJoinStatus && isFull && (
+            <span style={{
+              padding: '4px 10px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(239,68,68,0.1)',
+              color: 'var(--color-danger)',
+              fontSize: 11,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              Full
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

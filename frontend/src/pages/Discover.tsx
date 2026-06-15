@@ -156,7 +156,8 @@ export function Discover() {
                 key={h.id}
                 hangout={h}
                 onJoin={handleJoin}
-                onSelect={setSelectedHangout}
+                onOpenChat={(roomId) => navigate(`/chat/${roomId}`)}
+                onSelect={(selected) => setSelectedHangout(selected)}
                 isSelected={selectedHangout?.id === h.id}
               />
             ))}
@@ -188,6 +189,7 @@ export function Discover() {
             selectedId={selectedHangout?.id ?? null}
             onSelectHangout={setSelectedHangout}
             onJoin={handleJoin}
+            onOpenChat={(roomId) => navigate(`/chat/${roomId}`)}
           />
         ) : (
           <div style={{

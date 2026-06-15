@@ -37,27 +37,39 @@ export function useChatSocket({ roomId }: UseChatSocketOptions): UseChatSocketRe
     if (!roomId) return;
 
     let socket: Socket;
+    let mounted = true;
 
     const init = async () => {
       const token = await getToken();
-      if (!token) return;
+      if (!token || !mounted) return;
 
       socket = io(API_URL, {
         auth: { token },
         transports: ['websocket'],
       });
 
+      if (!mounted) {
+        socket.disconnect();
+        return;
+      }
+
       socketRef.current = socket;
 
       socket.on('connect', () => {
-        setConnected(true);
+        if (mounted) setConnected(true);
         socket.emit('join_room', { roomId });
       });
 
-      socket.on('disconnect', () => setConnected(false));
+      socket.on('disconnect', () => {
+        if (mounted) setConnected(false);
+      });
 
       socket.on('new_message', (msg: ChatMessage) => {
-        setMessages((prev) => [...prev, msg]);
+        if (!mounted) return;
+        setMessages((prev) => {
+          if (prev.some(p => p.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
       });
 
       socket.on('error', (data) => {
@@ -68,7 +80,10 @@ export function useChatSocket({ roomId }: UseChatSocketOptions): UseChatSocketRe
     init();
 
     return () => {
-      socket?.disconnect();
+      mounted = false;
+      if (socket) {
+        socket.disconnect();
+      }
       socketRef.current = null;
       setMessages([]);
       setConnected(false);

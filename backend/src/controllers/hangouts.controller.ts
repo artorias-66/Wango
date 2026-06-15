@@ -38,6 +38,15 @@ export async function postHangout(req: Request, res: Response, next: NextFunctio
  */
 export async function discover(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const auth = getAuth(req);
+    let currentUserId: number | undefined;
+
+    if (auth?.userId) {
+      const dbUser = await getUserByClerkId(auth.userId);
+      if (dbUser) {
+        currentUserId = dbUser.id;
+      }
+    }
     const { lat, lng, radius, category } = req.query as {
       lat: string;
       lng: string;
@@ -49,7 +58,8 @@ export async function discover(req: Request, res: Response, next: NextFunction):
       parseFloat(lat),
       parseFloat(lng),
       parseFloat(radius ?? '10000'),
-      category
+      category,
+      currentUserId
     );
 
     res.status(200).json({ success: true, count: hangouts.length, data: hangouts });

@@ -65,7 +65,8 @@ export async function discoverHangouts(
   lat: number,
   lng: number,
   radiusMetres: number,
-  category?: string
+  category?: string,
+  currentUserId?: number
 ): Promise<NearbyHangout[]> {
   const now = new Date();
 
@@ -79,6 +80,8 @@ export async function discoverHangouts(
         ST_Y(h."location"::geometry) AS "lat", ST_X(h."location"::geometry) AS "lng",
         u."name" as "userName", u."avatarColor",
         COUNT(j."id")::int AS "joinCount",
+        my_join."status" AS "myJoinStatus",
+        cr."id" AS "chatRoomId",
         ST_Distance(
           h."location",
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
@@ -86,6 +89,8 @@ export async function discoverHangouts(
       FROM "HangoutPost" h
       JOIN "User" u ON u."id" = h."userId"
       LEFT JOIN "HangoutJoin" j ON j."hangoutPostId" = h."id" AND j."status" = 'ACCEPTED'
+      LEFT JOIN "ChatRoom" cr ON cr."hangoutPostId" = h."id"
+      LEFT JOIN "HangoutJoin" my_join ON my_join."hangoutPostId" = h."id" AND my_join."userId" = ${currentUserId ?? -1}
       WHERE
         h."location" IS NOT NULL
         AND h."status" = 'OPEN'
@@ -96,7 +101,7 @@ export async function discoverHangouts(
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,
           ${radiusMetres}
         )
-      GROUP BY h."id", u."name", u."avatarColor"
+      GROUP BY h."id", u."name", u."avatarColor", my_join."status", cr."id"
       ORDER BY "distanceMeters" ASC
     `;
   } else {
@@ -107,6 +112,8 @@ export async function discoverHangouts(
         ST_Y(h."location"::geometry) AS "lat", ST_X(h."location"::geometry) AS "lng",
         u."name" as "userName", u."avatarColor",
         COUNT(j."id")::int AS "joinCount",
+        my_join."status" AS "myJoinStatus",
+        cr."id" AS "chatRoomId",
         ST_Distance(
           h."location",
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
@@ -114,6 +121,8 @@ export async function discoverHangouts(
       FROM "HangoutPost" h
       JOIN "User" u ON u."id" = h."userId"
       LEFT JOIN "HangoutJoin" j ON j."hangoutPostId" = h."id" AND j."status" = 'ACCEPTED'
+      LEFT JOIN "ChatRoom" cr ON cr."hangoutPostId" = h."id"
+      LEFT JOIN "HangoutJoin" my_join ON my_join."hangoutPostId" = h."id" AND my_join."userId" = ${currentUserId ?? -1}
       WHERE
         h."location" IS NOT NULL
         AND h."status" = 'OPEN'
@@ -123,7 +132,7 @@ export async function discoverHangouts(
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,
           ${radiusMetres}
         )
-      GROUP BY h."id", u."name", u."avatarColor"
+      GROUP BY h."id", u."name", u."avatarColor", my_join."status", cr."id"
       ORDER BY "distanceMeters" ASC
     `;
   }
@@ -142,6 +151,8 @@ export async function discoverHangouts(
     lng: r.lng,
     distanceMeters: Number(r.distanceMeters),
     joinCount: r.joinCount ?? 0,
+    myJoinStatus: r.myJoinStatus,
+    chatRoomId: r.chatRoomId,
     user: { id: r.userId, name: r.userName, avatarColor: r.avatarColor },
   }));
 }

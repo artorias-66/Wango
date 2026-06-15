@@ -53,6 +53,8 @@ export interface HangoutRecord {
 
 export interface NearbyHangout extends HangoutRecord {
   distanceMeters: number;
+  myJoinStatus?: string | null;
+  chatRoomId?: number | null;
 }
 
 export interface JoinRecord {
@@ -85,19 +87,20 @@ export async function getMe(token: string): Promise<{ success: boolean; data: Us
 
 // ─── Hangout Endpoints ────────────────────────────────────────────────────────
 
-export async function discoverHangouts(params: {
-  lat: number;
-  lng: number;
-  radius?: number;
-  category?: string;
-}): Promise<{ success: boolean; count: number; data: NearbyHangout[] }> {
-  const q = new URLSearchParams({
-    lat: String(params.lat),
-    lng: String(params.lng),
-    ...(params.radius ? { radius: String(params.radius) } : {}),
-    ...(params.category ? { category: params.category } : {}),
+export async function discoverHangouts(
+  lat: number,
+  lng: number,
+  radius?: number,
+  category?: string,
+  token?: string
+): Promise<{ success: boolean; count: number; data: NearbyHangout[] }> {
+  const query = new URLSearchParams({
+    lat: lat.toString(),
+    lng: lng.toString(),
+    ...(radius ? { radius: radius.toString() } : {}),
+    ...(category ? { category } : {}),
   });
-  return apiFetch(`/api/hangouts/discover?${q}`);
+  return apiFetch(`/api/hangouts/discover?${query.toString()}`, {}, token);
 }
 
 export async function getHangoutDetail(id: number): Promise<{ success: boolean; data: HangoutDetail }> {
