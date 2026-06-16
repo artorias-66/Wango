@@ -1,5 +1,6 @@
 // frontend/src/hooks/useGeolocation.ts
 import { useState, useEffect } from 'react';
+import { Geolocation } from '@capacitor/geolocation';
 
 export interface GeoPosition {
   lat: number;
@@ -20,33 +21,54 @@ export function useGeolocation(): GeolocationState {
   const [trigger, setTrigger] = useState(0);
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setError('Geolocation is not supported by your browser.');
-      setLoading(false);
-      return;
-    }
+    let watchId: string | null = null;
+    let mounted = true;
+
+    const start = async () => {
+      try {
+        // Request permissions — on Android/iOS this shows the native OS dialog.
+        // On web it falls back to the browser prompt automatically.
+        const perm = await Geolocation.requestPermissions();
+        if (perm.location !== 'granted') {
+          if (mounted) {
+            setError('Location permission denied. Please allow access to discover hangouts nearby.');
+            setLoading(false);
+          }
+          return;
+        }
+
+        watchId = await Geolocation.watchPosition(
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+          (pos, err) => {
+            if (!mounted) return;
+            if (err || !pos) {
+              setError('Unable to determine your location. Please try again.');
+              setLoading(false);
+              return;
+            }
+            setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+            setLoading(false);
+            setError(null);
+          }
+        );
+      } catch (e) {
+        if (mounted) {
+          setError('Unable to determine your location. Please try again.');
+          setLoading(false);
+        }
+      }
+    };
 
     setLoading(true);
     setError(null);
+    start();
 
-    const id = navigator.geolocation.watchPosition(
-      (pos) => {
-        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLoading(false);
-      },
-      (err) => {
-        setError(
-          err.code === 1
-            ? 'Location permission denied. Please allow access to discover hangouts nearby.'
-            : 'Unable to determine your location. Please try again.'
-        );
-        setLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
-
-    return () => navigator.geolocation.clearWatch(id);
+    return () => {
+      mounted = false;
+      if (watchId) {
+        Geolocation.clearWatch({ id: watchId });
+      }
+    };
   }, [trigger]);
 
   return {
