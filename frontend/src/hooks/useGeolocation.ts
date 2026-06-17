@@ -1,6 +1,7 @@
 // frontend/src/hooks/useGeolocation.ts
 import { useState, useEffect } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 
 export interface GeoPosition {
   lat: number;
@@ -24,17 +25,18 @@ export function useGeolocation(): GeolocationState {
     let watchId: string | null = null;
     let mounted = true;
 
+
     const start = async () => {
       try {
-        // Request permissions — on Android/iOS this shows the native OS dialog.
-        // On web it falls back to the browser prompt automatically.
-        const perm = await Geolocation.requestPermissions();
-        if (perm.location !== 'granted') {
-          if (mounted) {
-            setError('Location permission denied. Please allow access to discover hangouts nearby.');
-            setLoading(false);
+        if (Capacitor.getPlatform() !== 'web') {
+          const perm = await Geolocation.requestPermissions();
+          if (perm.location !== 'granted') {
+            if (mounted) {
+              setError('Location permission denied. Please allow access to discover hangouts nearby.');
+              setLoading(false);
+            }
+            return;
           }
-          return;
         }
 
         watchId = await Geolocation.watchPosition(
@@ -42,6 +44,7 @@ export function useGeolocation(): GeolocationState {
           (pos, err) => {
             if (!mounted) return;
             if (err || !pos) {
+              console.error('WatchPosition Error:', err);
               setError('Unable to determine your location. Please try again.');
               setLoading(false);
               return;
@@ -51,7 +54,8 @@ export function useGeolocation(): GeolocationState {
             setError(null);
           }
         );
-      } catch {
+      } catch (err) {
+        console.error('Geolocation setup error:', err);
         if (mounted) {
           setError('Unable to determine your location. Please try again.');
           setLoading(false);

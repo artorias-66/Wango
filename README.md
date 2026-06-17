@@ -15,12 +15,12 @@ A real-time, location-based social discovery app that helps you find people near
 |---|---|
 | **Frontend** | React 19, Vite, TypeScript, Leaflet, Socket.IO Client |
 | **Backend** | Node.js, Express 5, TypeScript, Socket.IO |
-| **Database** | PostgreSQL 13 + PostGIS 3.4 (spatial queries) |
+| **Database** | PostgreSQL 13 + PostGIS 3.4 (Amazon RDS) |
 | **Cache/PubSub** | Redis 7 (Socket.IO Adapter for scaling) |
 | **ORM** | Prisma 7 (TypeScript-first) |
 | **Auth** | Clerk (JWT integrated with Sockets) |
-| **Container** | Docker + Nginx |
-| **CI/CD** | GitHub Actions → GHCR |
+| **Cloud Hosting**| AWS Fargate, ECS, Application Load Balancer |
+| **Infrastructure**| AWS Copilot CLI |
 
 ---
 
@@ -120,40 +120,35 @@ Open **http://localhost:5173** 🚀
 
 ---
 
-## Production Deployment
+## Production Deployment (AWS Fargate)
 
-### Requirements on the server
-- Docker + Docker Compose plugin
-- Ports 80 and 443 open
-- A `.env` file with production secrets
+Wango is deployed on a highly scalable, serverless container architecture managed by **AWS Copilot**.
 
-### Deploy with GHCR images
+### Architecture Overview
+
+- **Frontend (`/`)**: React/Vite SPA hosted on Nginx (Load Balanced Web Service).
+- **Backend API (`/api`)**: Node.js/Express API handling core logic and Socket.IO.
+- **Database**: Amazon RDS PostgreSQL with PostGIS extension.
+- **Cache**: Internal Redis cluster (Backend Service) for Socket.IO scaling.
+- **Networking**: AWS Application Load Balancer routing traffic by path.
+
+### Deploying Updates
+
+All services and environments are managed via the Copilot CLI.
 
 ```bash
-# 1. Copy .env.example to .env and fill in production values
-cp .env.example .env
-nano .env
+# 1. Deploy the Backend API
+copilot deploy --name backend --env production
 
-# 2. Pull and start production stack
-IMAGE_TAG=latest docker compose -f docker-compose.prod.yml up -d
+# 2. Deploy the Frontend SPA
+copilot deploy --name frontend --env production
 
-# 3. Run database migrations (first deploy only)
-make migrate
+# 3. View live logs
+copilot svc logs --name backend --env production
 ```
 
-The app will be live on **port 80**.
-
-### GitHub Secrets
-
-Add these at `Settings → Secrets → Actions`:
-
-| Secret | Required | Description |
-|---|---|---|
-| `VITE_CLERK_PUBLISHABLE_KEY` | ✅ | Baked into the frontend image at build time |
-| `DEPLOY_HOOK_URL` | Optional | Webhook URL to auto-deploy on push to main |
-
 > [!NOTE]
-> `GITHUB_TOKEN` is automatic — GHCR push works without any extra setup.
+> Database connection strings and Clerk API keys are injected securely via Copilot manifest variables and AWS Systems Manager (SSM) Parameter Store.
 
 ---
 
