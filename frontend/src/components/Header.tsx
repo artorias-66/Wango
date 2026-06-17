@@ -8,8 +8,9 @@ export function Header() {
   const location = useLocation();
 
   return (
-    <header style={{
-      position: 'fixed',
+    <>
+      <header style={{
+        position: 'fixed',
       top: 0,
       left: 0,
       right: 0,
@@ -49,7 +50,7 @@ export function Header() {
       </Link>
 
       {/* Nav Links */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <nav className="desktop-nav" style={{ alignItems: 'center', gap: '4px' }}>
         {[
           { label: 'Discover', path: '/' },
           { label: 'Post Hangout', path: '/post' },
@@ -94,7 +95,7 @@ export function Header() {
               }}>
                 {user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() ?? 'W'}
               </div>
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
+              <span className="header-auth-name" style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
                 {user?.firstName ?? 'Explorer'}
               </span>
             </div>
@@ -107,11 +108,41 @@ export function Header() {
             </button>
           </>
         ) : (
-          <button onClick={() => openSignIn()} className="btn btn-primary btn-sm">
+          <button className="btn btn-primary btn-sm" onClick={() => openSignIn()}>
             Sign In
           </button>
         )}
       </div>
-    </header>
+      </header>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="mobile-nav">
+        {[
+          { label: 'Discover', path: '/', icon: '🗺️' },
+          { label: '+ Post', path: '/post', icon: '📍' },
+          { label: 'Dashboard', path: '/dashboard', icon: '⚙️' },
+        ].map(({ label, path, icon }) => (
+          <Link
+            key={path}
+            to={path}
+            style={{
+              padding: '8px 12px',
+              fontFamily: 'var(--font-body)',
+              fontSize: 11,
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: location.pathname === path ? 'var(--color-primary)' : 'var(--text-secondary)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <span style={{ fontSize: 20 }}>{icon}</span>
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </>
   );
 }

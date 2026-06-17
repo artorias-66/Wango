@@ -36,11 +36,19 @@ interface SocketData {
 
 export function initSocketServer(httpServer: HttpServer): SocketIOServer {
 
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://localhost',
+    'http://localhost',
+    'capacitor://localhost'
+  ];
+  if (process.env.CORS_ORIGIN) allowedOrigins.push(process.env.CORS_ORIGIN);
+
   const io = new SocketIOServer<ClientToServerEvents, ServerToClientEvents, object, SocketData>(
     httpServer,
     {
       cors: {
-        origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+        origin: allowedOrigins,
         credentials: true,
       },
     },

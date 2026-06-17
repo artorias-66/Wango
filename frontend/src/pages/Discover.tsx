@@ -61,9 +61,9 @@ export function Discover() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', paddingTop: '60px' }}>
+    <div className="discover-container" style={{ display: 'flex', height: '100vh', paddingTop: 'calc(60px + var(--safe-top))' }}>
       {/* ─── Left Panel ──────────────────────────────── */}
-      <div style={{
+      <div className="discover-panel" style={{
         width: '380px',
         flexShrink: 0,
         display: 'flex',

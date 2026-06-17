@@ -306,3 +306,50 @@ input[type='range']::-webkit-slider-thumb:hover {
 .cat-SOCIAL    { --cat-color: var(--cat-social); }
 .cat-FITNESS   { --cat-color: var(--cat-fitness); }
 .cat-TRAVEL    { --cat-color: var(--cat-travel); }
+
+/* ─── Mobile Responsive Overrides ────────────────────────────── */
+.mobile-nav {
+  display: none;
+}
+.desktop-nav {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(60px + var(--safe-bottom));
+  }
+
+  .desktop-nav {
+    display: none !important;
+  }
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(60px + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: rgba(8, 13, 26, 0.95);
+    border-top: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    z-index: 2000;
+    justify-content: space-around;
+    align-items: center;
+  }
+  .header-auth-name {
+    display: none !important;
+  }
+
+  .discover-container {
+    flex-direction: column-reverse !important;
+    padding-bottom: calc(60px + var(--safe-bottom)) !important;
+  }
+  .discover-panel {
+    width: 100% !important;
+    height: 50vh !important;
+    border-right: none !important;
+    border-top: 1px solid var(--glass-border);
+  }
+}

@@ -51,7 +51,7 @@ export function useGeolocation(): GeolocationState {
             setError(null);
           }
         );
-      } catch (e) {
+      } catch {
         if (mounted) {
           setError('Unable to determine your location. Please try again.');
           setLoading(false);
@@ -59,8 +59,6 @@ export function useGeolocation(): GeolocationState {
       }
     };
 
-    setLoading(true);
-    setError(null);
     start();
 
     return () => {
@@ -75,6 +73,10 @@ export function useGeolocation(): GeolocationState {
     position,
     error,
     loading,
-    refresh: () => setTrigger((t) => t + 1),
+    refresh: () => {
+      setLoading(true);
+      setError(null);
+      setTrigger((t) => t + 1);
+    },
   };
 }

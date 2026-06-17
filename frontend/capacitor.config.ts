@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
   // On a physical device, replace with your LAN IP: http://192.168.1.3:3001
   server: {
     // Remove this block entirely when deploying to production with a real URL
-    androidScheme: 'http',
+    androidScheme: 'https',
   },
   android: {
     allowMixedContent: true, // Required for http:// in dev (remove in prod)
