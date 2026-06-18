@@ -14,10 +14,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Deploy to AWS Copilot
+  deploy-backend:
+    name: Deploy Backend
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -33,12 +32,28 @@ jobs:
           curl -Lo copilot-cli https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux
           chmod +x copilot-cli
           sudo mv copilot-cli /usr/local/bin/copilot
-          copilot --version
 
       - name: Deploy Backend
+        run: copilot deploy --name backend --env production
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+
+      - name: Install AWS Copilot CLI
         run: |
-          copilot deploy --name backend --env production
+          curl -Lo copilot-cli https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux
+          chmod +x copilot-cli
+          sudo mv copilot-cli /usr/local/bin/copilot
 
       - name: Deploy Frontend
-        run: |
-          copilot deploy --name frontend --env production
+        run: copilot deploy --name frontend --env production
