@@ -127,28 +127,27 @@ Wango is deployed on a highly scalable, serverless container architecture manage
 ### Architecture Overview
 
 - **Frontend (`/`)**: React/Vite SPA hosted on Nginx (Load Balanced Web Service).
-- **Backend API (`/api`)**: Node.js/Express API handling core logic and Socket.IO.
+- **Backend API (`/api` & `/api/socket.io`)**: Node.js/Express API handling core logic and WebSockets natively routed via the AWS ALB.
 - **Database**: Amazon RDS PostgreSQL with PostGIS extension.
 - **Cache**: Internal Redis cluster (Backend Service) for Socket.IO scaling.
 - **Networking**: AWS Application Load Balancer routing traffic by path.
 
 ### Deploying Updates
 
-All services and environments are managed via the Copilot CLI.
+We use a fully automated CI/CD pipeline. Every push to the `main` branch automatically triggers GitHub Actions to build the Docker containers and deploy them to AWS Copilot.
+
+However, you can still manually manage the environment via the Copilot CLI:
 
 ```bash
-# 1. Deploy the Backend API
-copilot deploy --name backend --env production
-
-# 2. Deploy the Frontend SPA
-copilot deploy --name frontend --env production
-
-# 3. View live logs
+# View live backend logs
 copilot svc logs --name backend --env production
+
+# Force manual deployments
+copilot deploy --name backend --env production --force
 ```
 
 > [!NOTE]
-> Database connection strings and Clerk API keys are injected securely via Copilot manifest variables and AWS Systems Manager (SSM) Parameter Store.
+> Database connection strings and Clerk API keys are injected securely at runtime via AWS Systems Manager (SSM) Parameter Store. They are no longer stored in the Copilot manifests.
 
 ---
 
@@ -179,15 +178,12 @@ Push to main
     │       └── Validate Docker builds
     │
     └─► CD (.github/workflows/cd.yml)
-            ├── Build backend image → ghcr.io/artorias-66/wango-backend:latest
-            ├── Build frontend image → ghcr.io/artorias-66/wango-frontend:latest
-            └── Trigger deploy webhook (if DEPLOY_HOOK_URL set)
+            ├── Install AWS Copilot CLI on GitHub Runner
+            ├── copilot deploy --name backend --env production
+            └── copilot deploy --name frontend --env production
 ```
 
-Images are also tagged with `sha-<commit>` for rollbacks:
-```bash
-IMAGE_TAG=sha-abc1234 docker compose -f docker-compose.prod.yml up -d
-```
+The GitHub Actions runner securely authenticates with AWS using `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` injected via GitHub Secrets.
 
 ---
 
