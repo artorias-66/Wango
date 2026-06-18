@@ -17,7 +17,7 @@ http:
 # Configuration for your containers and service.
 image:
   build:
-    dockerfile: frontend\Dockerfile
+    dockerfile: frontend/Dockerfile
     args:
       VITE_CLERK_PUBLISHABLE_KEY: "pk_test_dmFzdC1veC0yMy5jbGVyay5hY2NvdW50cy5kZXYk"
   # Port exposed through your container to route traffic to it.
