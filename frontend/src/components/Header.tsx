@@ -1,11 +1,21 @@
 // frontend/src/components/Header.tsx
 import { useClerk, useUser } from '@clerk/clerk-react';
+import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 export function Header() {
   const { openSignIn, signOut } = useClerk();
   const { user, isSignedIn } = useUser();
   const location = useLocation();
+
+  const isChatRoom = location.pathname.startsWith('/chat/');
+  useEffect(() => {
+    if (isChatRoom) {
+      document.body.classList.add('hide-bottom-nav');
+    } else {
+      document.body.classList.remove('hide-bottom-nav');
+    }
+  }, [isChatRoom]);
 
   return (
     <>

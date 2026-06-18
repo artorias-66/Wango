@@ -39,14 +39,32 @@ export function useGeolocation(): GeolocationState {
           }
         }
 
+        // Attempt a quick one-shot location first
+        try {
+          const initialPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 10000 });
+          if (mounted && initialPos) {
+            setPosition({ lat: initialPos.coords.latitude, lng: initialPos.coords.longitude });
+            setLoading(false);
+            setError(null);
+          }
+        } catch (e) {
+          console.warn('Initial location fetch failed:', e);
+        }
+
         watchId = await Geolocation.watchPosition(
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 },
           (pos, err) => {
             if (!mounted) return;
             if (err || !pos) {
               console.error('WatchPosition Error:', err);
-              setError('Unable to determine your location. Please try again.');
-              setLoading(false);
+              // Only show error if we don't have a fallback position
+              setPosition((prev) => {
+                if (!prev) {
+                  setError('Unable to determine your location. Please try again.');
+                  setLoading(false);
+                }
+                return prev;
+              });
               return;
             }
             setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
