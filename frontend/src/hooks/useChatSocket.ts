@@ -44,6 +44,7 @@ export function useChatSocket({ roomId }: UseChatSocketOptions): UseChatSocketRe
       if (!token || !mounted) return;
 
       socket = io(API_URL, {
+        path: '/api/socket.io',
         auth: { token },
         transports: ['websocket'],
       });

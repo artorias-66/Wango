@@ -28,7 +28,7 @@ if (process.env.CORS_ORIGIN) allowedOrigins.push(process.env.CORS_ORIGIN);
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || process.env.CORS_ORIGIN === '*' || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));

@@ -47,8 +47,15 @@ export function initSocketServer(httpServer: HttpServer): SocketIOServer {
   const io = new SocketIOServer<ClientToServerEvents, ServerToClientEvents, object, SocketData>(
     httpServer,
     {
+      path: '/api/socket.io',
       cors: {
-        origin: allowedOrigins,
+        origin: (origin, callback) => {
+          if (!origin || process.env.CORS_ORIGIN === '*' || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
         credentials: true,
       },
     },
