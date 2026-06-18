@@ -3,10 +3,15 @@ name: CD
 on:
   push:
     branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'copilot/**'
+      - '.github/workflows/cd.yml'
 
 concurrency:
-  group: cd-${{ github.ref }}
-  cancel-in-progress: true
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
