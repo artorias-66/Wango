@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 
+import { Capacitor } from '@capacitor/core';
+
 export interface GeoPosition {
   lat: number;
   lng: number;
@@ -24,20 +26,26 @@ export function useGeolocation(): GeolocationState {
     let watchId: string | null = null;
     let mounted = true;
 
-
     const start = async () => {
       try {
-        let perm = await Geolocation.checkPermissions();
-        if (perm.location !== 'granted') {
-          perm = await Geolocation.requestPermissions();
-        }
+        // Attempt manual permission flow on native devices
+        if (Capacitor.isNativePlatform()) {
+          try {
+            let perm = await Geolocation.checkPermissions();
+            if (perm.location !== 'granted') {
+              perm = await Geolocation.requestPermissions({ permissions: ['location'] });
+            }
 
-        if (perm.location !== 'granted') {
-          if (mounted) {
-            setError('Location permission denied. Please allow access to discover hangouts nearby.');
-            setLoading(false);
+            if (perm.location !== 'granted') {
+              if (mounted) {
+                setError('Location permission denied. Please allow access to discover hangouts nearby.');
+                setLoading(false);
+              }
+              return;
+            }
+          } catch (permErr) {
+            console.warn('Permission check failed, proceeding to location request:', permErr);
           }
-          return;
         }
 
         // Attempt a quick one-shot location first to prevent initial watchPosition hang
