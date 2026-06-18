@@ -28,20 +28,22 @@ export function useGeolocation(): GeolocationState {
 
     const start = async () => {
       try {
-        if (Capacitor.getPlatform() !== 'web') {
-          const perm = await Geolocation.requestPermissions();
-          if (perm.location !== 'granted') {
-            if (mounted) {
-              setError('Location permission denied. Please allow access to discover hangouts nearby.');
-              setLoading(false);
-            }
-            return;
-          }
+        let perm = await Geolocation.checkPermissions();
+        if (perm.location !== 'granted') {
+          perm = await Geolocation.requestPermissions();
         }
 
-        // Attempt a quick one-shot location first
+        if (perm.location !== 'granted') {
+          if (mounted) {
+            setError('Location permission denied. Please allow access to discover hangouts nearby.');
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Attempt a quick one-shot location first to prevent initial watchPosition hang
         try {
-          const initialPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 10000 });
+          const initialPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 });
           if (mounted && initialPos) {
             setPosition({ lat: initialPos.coords.latitude, lng: initialPos.coords.longitude });
             setLoading(false);
@@ -52,7 +54,7 @@ export function useGeolocation(): GeolocationState {
         }
 
         watchId = await Geolocation.watchPosition(
-          { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 },
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
           (pos, err) => {
             if (!mounted) return;
             if (err || !pos) {
