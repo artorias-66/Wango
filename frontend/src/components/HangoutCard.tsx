@@ -151,9 +151,25 @@ export function HangoutCard({ hangout, onJoin, onOpenChat, onSelect, isSelected 
             <button
               className="btn btn-primary btn-sm"
               onClick={(e) => { e.stopPropagation(); onOpenChat(hangout.chatRoomId!); }}
-              style={{ fontSize: 12, padding: '5px 12px' }}
+              style={{ fontSize: 12, padding: '5px 12px', position: 'relative' }}
             >
               💬 Open Chat
+              {hangout.unreadCount && hangout.unreadCount > 0 ? (
+                <span style={{
+                  position: 'absolute',
+                  top: '-4px', right: '-4px',
+                  background: 'var(--color-danger)',
+                  color: 'white',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  minWidth: '16px', height: '16px',
+                  borderRadius: '16px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 0 0 2px var(--bg-surface)'
+                }}>
+                  {hangout.unreadCount > 99 ? '99+' : hangout.unreadCount}
+                </span>
+              ) : null}
             </button>
           )}
 

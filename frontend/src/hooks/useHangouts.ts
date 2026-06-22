@@ -1,6 +1,6 @@
 // frontend/src/hooks/useHangouts.ts
 import { useState, useEffect, useCallback } from 'react';
-import { discoverHangouts } from '../api/wango.api';
+import { discoverHangouts, getChatRooms } from '../api/wango.api';
 import type { NearbyHangout } from '../api/wango.api';
 import type { GeoPosition } from './useGeolocation';
 import { useAuth } from '@clerk/clerk-react';
@@ -37,8 +37,22 @@ export function useHangouts({
 
     try {
       let token: string | undefined;
+      const chatRoomsByRoomId: Record<number, number> = {};
+
       if (isSignedIn) {
         token = (await getToken()) ?? undefined;
+        if (token) {
+          try {
+            const chatRes = await getChatRooms(token);
+            if (chatRes.success) {
+              chatRes.data.forEach((r) => {
+                chatRoomsByRoomId[r.id] = r.unreadCount;
+              });
+            }
+          } catch (e) {
+            console.warn('Failed to load chat rooms for unread counts', e);
+          }
+        }
       }
       
       const res = await discoverHangouts(
@@ -48,7 +62,15 @@ export function useHangouts({
         category || undefined,
         token
       );
-      setHangouts(res.data);
+
+      const merged = res.data.map((h) => {
+        if (h.chatRoomId && chatRoomsByRoomId[h.chatRoomId] !== undefined) {
+          return { ...h, unreadCount: chatRoomsByRoomId[h.chatRoomId] };
+        }
+        return h;
+      });
+
+      setHangouts(merged);
     } catch (err) {
       setError((err as Error).message ?? 'Failed to load hangouts.');
     } finally {

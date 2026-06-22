@@ -123,11 +123,27 @@ export function HostDashboard() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {chatRooms[h.id] && (
                       <button
-                        className="btn btn-primary"
-                        style={{ padding: '6px 14px', fontSize: 13 }}
+                        className="btn btn-primary btn-sm"
                         onClick={() => navigate(`/chat/${chatRooms[h.id].id}`)}
+                        style={{ fontSize: 13, padding: '6px 14px', position: 'relative' }}
                       >
                         💬 Open Chat
+                        {chatRooms[h.id].unreadCount > 0 ? (
+                          <span style={{
+                            position: 'absolute',
+                            top: '-4px', right: '-4px',
+                            background: 'var(--color-danger)',
+                            color: 'white',
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            minWidth: '16px', height: '16px',
+                            borderRadius: '16px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 0 0 2px var(--bg-surface)'
+                          }}>
+                            {chatRooms[h.id].unreadCount > 99 ? '99+' : chatRooms[h.id].unreadCount}
+                          </span>
+                        ) : null}
                       </button>
                     )}
                     <div style={{

@@ -55,6 +55,7 @@ export interface NearbyHangout extends HangoutRecord {
   distanceMeters: number;
   myJoinStatus?: string | null;
   chatRoomId?: number | null;
+  unreadCount?: number;
 }
 
 export interface JoinRecord {
